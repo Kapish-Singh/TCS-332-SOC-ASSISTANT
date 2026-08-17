@@ -1,0 +1,50 @@
+Phase 1: Foundation (Week 1)
+
+soc-assistant/
+├── app.py                 # Streamlit main
+├── modules/
+│   ├── log_analyzer.py
+│   ├── url_checker.py
+│   ├── email_analyzer.py
+│   ├── ioc_extractor.py
+│   ├── hash_checker.py
+│   └── report_generator.py
+├── db/
+│   └── database.py        # SQLite setup
+├── data/
+│   └── malicious_hashes.csv  # DB
+└── requirements.txt
+
+Start with pip install streamlit pandas plotly reportlab requests and get a bare Streamlit shell running with a sidebar nav (st.sidebar.radio) linking to placeholder pages for each module.
+
+Phase 2: Log Analyzer first — 
+
+Parse with pandas (regex extraction for SSH auth logs: Failed password for .* from (\d+\.\d+\.\d+\.\d+))
+Group by IP, count failures, flag if count > threshold in a time window → brute-force detection
+Plotly bar chart of top offending IPs
+This alone is a solid mini-project if you stop here
+
+Phase 3: URL Checker
+
+Regex/heuristics: IP-literal URLs, @ in URL, excessive subdomains, known shortener domains list, Levenshtein distance against a list of popular domains for typosquat detection (python-Levenshtein or difflib)
+No API needed initially — score based on weighted rule hits (0–100)
+
+Phase 4: IOC Extractor
+
+Pure regex module: IPs, URLs, emails, domains, hashes (MD5/SHA1/SHA256 by length pattern)
+Reusable — call it from the log analyzer and email analyzer output
+
+Phase 5: Report Generator
+
+Feed structured findings (dict/JSON) into ReportLab → PDF with sections you listed
+You already have ReportLab experience from your resume project, so this should be fast for you
+
+Phase 6: Email Analyzer
+
+Use Pythons email module to parse .eml (headers, sender, links, attachments)
+Heuristics: SPF/DKIM fail mentions, mismatched display name vs. actual address, urgency keywords, link-domain mismatch from display text
+
+Phase 7: Hash Checker + AI Chat
+
+Hash checker: local CSV/SQLite lookup first; VirusTotal API is a nice add-on later (needs a free API key, rate-limited)
+AI chat: wrap OpenAI/Claude API call with SOC-analyst system prompt, feed it context from whichever module's output is currently loaded
