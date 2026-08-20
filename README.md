@@ -69,11 +69,11 @@ Every detection module (Log Analyzer, URL Checker, and future modules) is fully 
 
 ## 🚀 Getting Started
 
-**Requirements:** Python 3.10+, pip
+**Requirements:** Python 3.10+pip
 
 ```bash
 # Clone the repo
-git clone https://github.com/Kaps-say/TCS332-SOC-Assistant.git
+git clone https://github.com/Kapish-Singh/TCS332-SOC-Assistant.git
 cd TCS332-SOC-Assistant
 
 # Creates and activate a virtual environment
