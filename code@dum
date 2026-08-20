@@ -1,0 +1,89 @@
+SOC AI Assistant - Main Streamlit App (Phase 1: Foundation)
+
+Run with:
+    streamlit run app.py
+"""
+
+import streamlit as st
+from db import database
+from modules import (
+    log_analyzer,
+    url_checker,
+    ioc_extractor,
+    report_generator,
+    email_analyzer,
+    hash_checker,
+)
+
+st.set_page_config(
+    page_title="AI SOC Assistant",
+    page_icon="🛡️",
+    layout="wide",
+)
+
+# Initialize the database once per session
+database.init_db()
+
+PAGES = {
+    "🏠 Dashboard": None,   # handled separately below
+    "📧 Email Analyzer": email_analyzer,
+    "🌐 URL Checker": url_checker,
+    "📜 Log Analyzer": log_analyzer,
+    "📦 File Hash Checker": hash_checker,
+    "👤 IOC Extractor": ioc_extractor,
+    "📊 Report Generator": report_generator,
+}
+
+
+def render_dashboard():
+    st.header("🛡️ AI SOC Assistant — Dashboard")
+    st.caption("Overview of all analyzed incidents across every module.")
+
+    incidents = database.get_all_incidents()
+    counts = database.get_incident_counts_by_severity()
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("Total Incidents", len(incidents))
+    col2.metric("🔴 Critical", counts.get("Critical", 0))
+    col3.metric("🟠 High", counts.get("High", 0))
+    col4.metric("🟡 Medium", counts.get("Medium", 0))
+    col5.metric("🟢 Low", counts.get("Low", 0))
+
+    st.divider()
+
+    if incidents:
+        st.subheader("Recent Incidents")
+        st.dataframe(
+            [
+                {
+                    "Time": i["created_at"],
+                    "Module": i["source_module"],
+                    "Title": i["title"],
+                    "Severity": i["severity"],
+                }
+                for i in incidents[:20]
+            ],
+            use_container_width=True,
+        )
+    else:
+        st.info("No incidents yet. Use the sidebar to run an analysis — results will appear here.")
+
+
+def main():
+    st.sidebar.title("🛡️ SOC Assistant")
+    st.sidebar.caption("AI-powered Security Operations Center")
+    choice = st.sidebar.radio("Navigate", list(PAGES.keys()))
+
+    st.sidebar.divider()
+    st.sidebar.markdown("**Status**")
+    st.sidebar.success("Database: Connected")
+    st.sidebar.warning("AI Chat: Not configured (Phase 8)")
+
+    if choice == "🏠 Dashboard":
+        render_dashboard()
+    else:
+        PAGES[choice].render()
+
+
+if __name__ == "__main__":
+    main()
